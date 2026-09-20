@@ -5,6 +5,26 @@ package com.mca.androidseminar2026.data
  * 모든 값은 String이고 책과 영화의 필드도 다릅니다.
  */
 object RawContents {
+    sealed class Content{
+        abstract val id: Int
+        abstract val title: String
+        abstract val year: Int
+    }
+
+    data class Movie(
+        override val id: Int,
+        override val title: String,
+        val director: String,
+        override val year: Int,
+        val runningTimeMinutes: Int,
+    ):Content()
+    data class Book(
+        override val id: Int,
+        override val title: String,
+        val author: String,
+        override val year: Int,
+        val pageCount: Int,
+    ):Content()
     val items: List<Map<String, String>> = listOf(
         mapOf("id" to "1", "kind" to "book", "title" to "The Alchemist", "author" to "Paulo Coelho", "year" to "1988", "pageCount" to "208"),
         mapOf("id" to "2", "kind" to "movie", "title" to "Interstellar", "director" to "Christopher Nolan", "year" to "2014", "runningTimeMinutes" to "169"),
