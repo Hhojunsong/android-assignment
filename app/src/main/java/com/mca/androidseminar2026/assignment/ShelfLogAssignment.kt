@@ -16,13 +16,56 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
     // TODO 3~5의 검색, 저장, 전체 삭제 함수가 이 프로퍼티를 사용할 수 있어야 합니다.
     // 클래스를 새로 정의해서 사용해 주세요.
     // 단, 정의하신 클래스의 id는 반드시 Int 타입으로 해 주세요.
-    //
+    sealed class Content {
+        abstract val id: Int
+        abstract val title: String
+        abstract val year: Int
+
+
+        data class Movie(
+            override val id: Int,
+            override val title: String,
+            val director: String,
+            override val year: Int,
+            val runningTimeMinutes: Int,
+        ) : Content()
+
+        data class Book(
+            override val id: Int,
+            override val title: String,
+            val author: String,
+            override val year: Int,
+            val pageCount: Int,
+        ) : Content()
+    }
     // 예:
-    // private val contents: MutableList<???>
-    //
-    // init {
-    //     contents = rawCatalog.map { ... }
-    // }
+    private val contents: MutableList<Content>
+
+    init {
+        contents = rawCatalog.map { raw -> toContent(raw) }.toMutableList()
+    }
+
+    private fun toContent(raw: Map<String, String>): Content{
+        return when (raw["kind"]){
+            "movie" -> Content.Movie(
+                id = raw["id"]!!.toInt(),
+                title = raw["title"]!!,
+                director = raw["director"]!!,
+                year = raw["year"]!!.toInt(),
+                runningTimeMinutes = raw["runningTimeMinutes"]!!.toInt()
+            )
+
+            "book" -> Content.Book(
+                id = raw["id"]!!.toInt(),
+                title = raw["title"]!!,
+                author = raw["author"]!!,
+                year = raw["year"]!!.toInt(),
+                pageCount = raw["pageCount"]!!.toInt()
+            )
+
+            else -> error("contents error")
+        }
+    }
 
     // TODO 2. 작품별 감상 기록을 저장하는 방식을 결정하세요.
     // 각 기록에는 평점과 메모가 필요합니다.
