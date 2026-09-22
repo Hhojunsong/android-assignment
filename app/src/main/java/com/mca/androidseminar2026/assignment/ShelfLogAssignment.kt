@@ -19,14 +19,14 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
     sealed class Content {
         abstract val id: Int
         abstract val title: String
-        abstract val year: Int
+        abstract val year: String
 
 
         data class Movie(
             override val id: Int,
             override val title: String,
             val director: String,
-            override val year: Int,
+            override val year: String,
             val runningTimeMinutes: Int,
         ) : Content()
 
@@ -34,7 +34,7 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
             override val id: Int,
             override val title: String,
             val author: String,
-            override val year: Int,
+            override val year: String,
             val pageCount: Int,
         ) : Content()
     }
@@ -51,7 +51,7 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
                 id = raw["id"]!!.toInt(),
                 title = raw["title"]!!,
                 director = raw["director"]!!,
-                year = raw["year"]!!.toInt(),
+                year = raw["year"]!!,
                 runningTimeMinutes = raw["runningTimeMinutes"]!!.toInt()
             )
 
@@ -59,7 +59,7 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
                 id = raw["id"]!!.toInt(),
                 title = raw["title"]!!,
                 author = raw["author"]!!,
-                year = raw["year"]!!.toInt(),
+                year = raw["year"]!!,
                 pageCount = raw["pageCount"]!!.toInt()
             )
 
@@ -73,11 +73,69 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
     // 아래 방식 중 하나를 선택하거나, 다른 방식을 사용해도 됩니다.
     // - 위에서 만든 작품 객체 안에 감상 기록을 포함한다.
     // - 작품 ID를 프로퍼티로 가지는, 감상 기록 저장용 객체를 새로 만든다.
+    data class Review(
+        val contentId: Int,
+        val rating: String,
+        val memo: String?
+    )
 
     /** 검색 결과를 ContentListItemUiModel로 변환해 반환하세요. */
     fun search(query: String): List<ContentListItemUiModel> {
-        // TODO 3. 빈 검색어일 경우엔 ContentListItemUiModel로 변환된 Catalog 전체를, 그 외에는 제목/저자 or 감독에 해당 query가 들어간 것들에 대해 결과를 반환하세요.
-        return emptyList()
+        // TODO 3.
+        // 1단계: 검색어(query)로 필터링하기
+        val filteredContents = contents.filter { content ->
+            if (query.isBlank()) {
+                true
+            }
+            else if(content.title.contains(query, ignoreCase = true)){
+                true
+            }
+            else{
+                when (content){
+                    is Content.Movie -> {
+                        content.director.contains(query, ignoreCase = true)
+                    }
+                    is Content.Book -> {
+                        content.author.contains(query, ignoreCase = true)
+                    }
+                }
+            }
+        }
+
+        // 2단계: ID 오름차순 정렬하기
+        val sortedContents = filteredContents.sortedBy { content ->
+            content.id
+        }
+
+        // 3단계: Content를 ContentListItemUiModel로 변환하기
+        return sortedContents.map { content ->
+            when (content) {
+                is Content.Movie -> {
+                    ContentListItemUiModel(
+                        id = content.id,
+                        typeLabel = "Movie",
+                        title = content.title,
+                        creator = content.director,
+                        year = content.year,
+                        pageCount = null,
+                        runningTimeMinutes = content.runningTimeMinutes,
+                        reviewSummary = ""
+                    )
+                }
+                is Content.Book -> {
+                    ContentListItemUiModel(
+                        id = content.id,
+                        typeLabel = "Book",
+                        title = content.title,
+                        creator = content.author,
+                        year = content.year,
+                        pageCount = content.pageCount,
+                        runningTimeMinutes = null,
+                        reviewSummary = ""
+                    )
+                }
+            }
+        }
     }
 
     /** 입력을 검증하고 감상 기록을 추가하거나 기존 기록을 갱신하세요. */
