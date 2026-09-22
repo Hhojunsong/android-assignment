@@ -144,7 +144,18 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
         ratingText: String,
         memo: String,
     ): SaveReviewResult {
-        TODO("TODO 4. 평점을 검증하고, 같은 작품의 기록은 갱신하세요.")
+        val rating = ratingText.toInt()
+
+        return if (rating < 1 || rating > 5){
+            SaveReviewResult.Failure
+        } else{
+            if (RawContents.items.any { TODO() == contentId.toString() }) {
+                editExistContent() //아직
+            } else {
+                saveNewContent() //아직
+            }
+            SaveReviewResult.Success
+        }
     }
 
     /** 모든 작품에서 감상 기록을 지우세요. */
