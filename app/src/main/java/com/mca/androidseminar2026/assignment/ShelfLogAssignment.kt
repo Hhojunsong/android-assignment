@@ -56,10 +56,6 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
     // 아래 방식 중 하나를 선택하거나, 다른 방식을 사용해도 됩니다.
     // - 위에서 만든 작품 객체 안에 감상 기록을 포함한다.
     // - 작품 ID를 프로퍼티로 가지는, 감상 기록 저장용 객체를 새로 만든다.
-    data class Review(
-        val rating: String,
-        val memo: String?
-    )
 
     /** 검색 결과를 ContentListItemUiModel로 변환해 반환하세요. */
     fun search(query: String): List<ContentListItemUiModel> {
@@ -83,6 +79,11 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
     }
 
     /** 입력을 검증하고 감상 기록을 추가하거나 기존 기록을 갱신하세요. */
+
+    data class Review(
+        val rating: String,
+        val memo: String?
+    )
 
     private val reviews = mutableMapOf<Int, Review>()
 
