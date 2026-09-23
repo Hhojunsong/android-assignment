@@ -39,28 +39,34 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
         ) : Content()
     }
     // 예:
-    private val contents: MutableList<Content>
+    private val contents: MutableList<ContentListItemUiModel>
 
     init {
-        contents = rawCatalog.map { raw -> toContent(raw) }.toMutableList()
+        contents = rawCatalog.map { raw -> toUiModel(raw) }.toMutableList()
     }
 
-    private fun toContent(raw: Map<String, String>): Content{
-        return when (raw["kind"]){
-            "movie" -> Content.Movie(
+    private fun toUiModel(raw: Map<String, String>): ContentListItemUiModel {
+        return when (raw["kind"]) {
+            "movie" -> ContentListItemUiModel(
                 id = raw["id"]!!.toInt(),
+                typeLabel = "Movie",
                 title = raw["title"]!!,
-                director = raw["director"]!!,
+                creator = raw["director"]!!,
                 year = raw["year"]!!,
-                runningTimeMinutes = raw["runningTimeMinutes"]!!.toInt()
+                pageCount = null,
+                runningTimeMinutes = raw["runningTimeMinutes"]!!.toInt(),
+                reviewSummary = ""
             )
 
-            "book" -> Content.Book(
+            "book" -> ContentListItemUiModel(
                 id = raw["id"]!!.toInt(),
+                typeLabel = "Book",
                 title = raw["title"]!!,
-                author = raw["author"]!!,
+                creator = raw["author"]!!,
                 year = raw["year"]!!,
-                pageCount = raw["pageCount"]!!.toInt()
+                pageCount = raw["pageCount"]!!.toInt(),
+                runningTimeMinutes = null,
+                reviewSummary = ""
             )
 
             else -> error("contents error")
@@ -86,55 +92,17 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
         val filteredContents = contents.filter { content ->
             if (query.isBlank()) {
                 true
-            }
-            else if(content.title.contains(query, ignoreCase = true)){
+            } else if (content.title.contains(query, ignoreCase = true)) {
                 true
-            }
-            else{
-                when (content){
-                    is Content.Movie -> {
-                        content.director.contains(query, ignoreCase = true)
-                    }
-                    is Content.Book -> {
-                        content.author.contains(query, ignoreCase = true)
-                    }
-                }
+            } else {
+                content.creator.contains(query, ignoreCase = true)
             }
         }
+
 
         // 2단계: ID 오름차순 정렬하기
-        val sortedContents = filteredContents.sortedBy { content ->
+        return filteredContents.sortedBy { content ->
             content.id
-        }
-
-        // 3단계: Content를 ContentListItemUiModel로 변환하기
-        return sortedContents.map { content ->
-            when (content) {
-                is Content.Movie -> {
-                    ContentListItemUiModel(
-                        id = content.id,
-                        typeLabel = "Movie",
-                        title = content.title,
-                        creator = content.director,
-                        year = content.year,
-                        pageCount = null,
-                        runningTimeMinutes = content.runningTimeMinutes,
-                        reviewSummary = ""
-                    )
-                }
-                is Content.Book -> {
-                    ContentListItemUiModel(
-                        id = content.id,
-                        typeLabel = "Book",
-                        title = content.title,
-                        creator = content.author,
-                        year = content.year,
-                        pageCount = content.pageCount,
-                        runningTimeMinutes = null,
-                        reviewSummary = ""
-                    )
-                }
-            }
         }
     }
 
@@ -149,10 +117,10 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
         return if (rating < 1 || rating > 5){
             SaveReviewResult.Failure
         } else{
-            if (RawContents.items.any { TODO() == contentId.toString() }) {
-                editExistContent() //아직
+            if (TODO().items.any { TODO() == contentId.toString() }) {
+                editExistContent() //미구현
             } else {
-                saveNewContent() //아직
+                saveNewContent() //미구현
             }
             SaveReviewResult.Success
         }
