@@ -16,29 +16,6 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
     // TODO 3~5의 검색, 저장, 전체 삭제 함수가 이 프로퍼티를 사용할 수 있어야 합니다.
     // 클래스를 새로 정의해서 사용해 주세요.
     // 단, 정의하신 클래스의 id는 반드시 Int 타입으로 해 주세요.
-    sealed class Content {
-        abstract val id: Int
-        abstract val title: String
-        abstract val year: String
-
-
-        data class Movie(
-            override val id: Int,
-            override val title: String,
-            val director: String,
-            override val year: String,
-            val runningTimeMinutes: Int,
-        ) : Content()
-
-        data class Book(
-            override val id: Int,
-            override val title: String,
-            val author: String,
-            override val year: String,
-            val pageCount: Int,
-        ) : Content()
-    }
-    // 예:
     private val contents: MutableList<ContentListItemUiModel>
 
     init {
@@ -112,7 +89,7 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
     fun saveReview(
         contentId: Int,
         ratingText: String,
-        memo: String,
+        memo: String?,
     ): SaveReviewResult {
         val rating = ratingText.toInt()
 
@@ -120,12 +97,24 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
             SaveReviewResult.Failure
         } else{
             reviews[contentId] = Review(ratingText, memo)
+
+            val index = contents.indexOfFirst { it.id == contentId }
+            val summaryText = if (memo == null){
+                "평점 $rating"
+            } else{
+                "평점 $rating, $memo"
+            }
+            contents[index] = contents[index].copy(reviewSummary = summaryText)
+
+
             SaveReviewResult.Success
         }
     }
 
     /** 모든 작품에서 감상 기록을 지우세요. */
     fun clearReviews() {
-        TODO("TODO 5. 모든 작품에서 감상 기록을 지우세요.")
+        reviews.clear()
+        contents.replaceAll { content -> content.copy(reviewSummary = "")}
+
     }
 }
