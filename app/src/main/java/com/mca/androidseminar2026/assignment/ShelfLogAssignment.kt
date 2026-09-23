@@ -80,7 +80,6 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
     // - 위에서 만든 작품 객체 안에 감상 기록을 포함한다.
     // - 작품 ID를 프로퍼티로 가지는, 감상 기록 저장용 객체를 새로 만든다.
     data class Review(
-        val contentId: Int,
         val rating: String,
         val memo: String?
     )
@@ -107,6 +106,9 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
     }
 
     /** 입력을 검증하고 감상 기록을 추가하거나 기존 기록을 갱신하세요. */
+
+    private val reviews = mutableMapOf<Int, Review>()
+
     fun saveReview(
         contentId: Int,
         ratingText: String,
@@ -114,14 +116,10 @@ class ShelfLogAssignment(rawCatalog: List<Map<String, String>>) {
     ): SaveReviewResult {
         val rating = ratingText.toInt()
 
-        return if (rating < 1 || rating > 5){
+        return if (rating !in 1..5){ //null 포함?
             SaveReviewResult.Failure
         } else{
-            if (TODO().items.any { TODO() == contentId.toString() }) {
-                editExistContent() //미구현
-            } else {
-                saveNewContent() //미구현
-            }
+            reviews[contentId] = Review(ratingText, memo)
             SaveReviewResult.Success
         }
     }
