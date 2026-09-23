@@ -13,9 +13,9 @@ object ContextPractice {
         activityContext: Context,
         applicationContext: Context,
     ) {
-        // 선택한 Context:
-        // 이 Context를 사용해야 하는 이유:
-        TODO("TODO 6. 두 Context 중 하나만 사용해 저장 완료 Toast를 띄우세요.")
+        // 선택한 Context: applicationContext
+        // 이 Context를 사용해야 하는 이유: 화면과 관련 없이 메모리에 내용을 저장할 것이기에
+        android.widget.Toast.makeText(applicationContext, "기록이 저장되었습니다.", android.widget.Toast.LENGTH_SHORT).show()
     }
 
     fun showClearConfirmation(
@@ -23,8 +23,13 @@ object ContextPractice {
         applicationContext: Context,
         onConfirmed: () -> Unit,
     ) {
-        // 선택한 Context:
-        // 이 Context를 사용해야 하는 이유:
-        TODO("TODO 7. 두 Context 중 하나만 사용해 전체 기록 삭제 확인 Dialog를 띄우세요.")
+        // 선택한 Context: activityContext
+        // 이 Context를 사용해야 하는 이유: 사용자가 삭제여부를 클릭할 화면을 띄울 것이기 때문에
+        android.app.AlertDialog.Builder(activityContext)
+            .setTitle("전체 기록 삭제")
+            .setMessage("모든 작품의 감상 기록을 삭제하시겠습니까?")
+            .setPositiveButton("삭제") { _, _ -> onConfirmed() }
+            .setNegativeButton("취소", null)
+            .show()
     }
 }
