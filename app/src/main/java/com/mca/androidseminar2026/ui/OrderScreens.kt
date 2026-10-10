@@ -2,6 +2,10 @@ package com.mca.androidseminar2026.ui
 
 import androidx.compose.runtime.Composable
 import com.mca.androidseminar2026.model.OrderTab
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
+
 
 // 상태와 이벤트 연결은 CounterExample.kt의 실행 예제를 참고하세요.
 // 각 화면에 필요한 상태·콜백과 사용할 ViewModel은 직접 설계하세요.
@@ -43,4 +47,31 @@ fun BottomBar(
 ) {
     // TODO: 세 탭과 선택 상태, 장바구니 전체 수량을 표시하세요.
     // 탭을 누르면 onTabSelected에 해당 OrderTab을 전달하세요.
+
+    NavigationBar {
+        NavigationBarItem(
+            selected = selectedTab == OrderTab.RESTAURANT,
+            onClick = { onTabSelected(OrderTab.RESTAURANT) },
+            icon = { Text("가") },
+            label = { Text("가게 소개") },
+        )
+
+        NavigationBarItem(
+            selected = selectedTab == OrderTab.MENU,
+            onClick = { onTabSelected(OrderTab.MENU) },
+            icon = { Text("메") },
+            label = { Text("메뉴") },
+        )
+
+        NavigationBarItem(
+            selected = selectedTab == OrderTab.CART,
+            onClick = { onTabSelected(OrderTab.CART) },
+            icon = {
+                Text(totalQuantity.toString())
+            },
+            label = { Text("장바구니") }
+        )
+    }
 }
+
+
