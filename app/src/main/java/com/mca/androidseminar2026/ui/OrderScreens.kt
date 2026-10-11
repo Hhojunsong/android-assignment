@@ -97,43 +97,51 @@ fun RestaurantScreen(
 fun MenuScreen(
     viewModel: OrderViewModel = viewModel()
 ) {
-    val quantities by viewModel.quantities.collectAsState()
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
-    val selectedCategory by viewModel.selectedCategory.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val visibleItems = MenuData.items.filter { menu ->
-        selectedCategory == null || menu.category == selectedCategory
+        uiState.selectedCategory == null || menu.category == uiState.selectedCategory
     }
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = RestaurantData.name,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
 
-    Column {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(bottom = 12.dp)
         ) {
             FilterChip(
-                selected = selectedCategory == null,
+                selected = uiState.selectedCategory == null,
                 onClick = { viewModel.selectCategory(null) },
                 label = { Text("전체") }
             )
             FilterChip(
-                selected = selectedCategory == MenuCategory.MAIN,
+                selected = uiState.selectedCategory == MenuCategory.MAIN,
                 onClick = { viewModel.selectCategory(MenuCategory.MAIN) },
                 label = { Text("메인") }
             )
             FilterChip(
-                selected = selectedCategory == MenuCategory.SIDE,
+                selected = uiState.selectedCategory == MenuCategory.SIDE,
                 onClick = { viewModel.selectCategory(MenuCategory.SIDE) },
                 label = { Text("사이드") }
             )
             FilterChip(
-                selected = selectedCategory == MenuCategory.DRINK,
+                selected = uiState.selectedCategory == MenuCategory.DRINK,
                 onClick = { viewModel.selectCategory(MenuCategory.DRINK) },
                 label = { Text("음료") }
             )
         }
 
         PullToRefreshBox(
-            isRefreshing = isRefreshing,
+            isRefreshing = uiState.isRefreshing,
             onRefresh = viewModel::refreshMenu,
             modifier = Modifier.fillMaxSize()
         ) {
@@ -141,7 +149,7 @@ fun MenuScreen(
                 items(visibleItems) { menu ->
                     MenuItemRow(
                         menu = menu,
-                        quantity = quantities[menu.id] ?: 0,
+                        quantity = uiState.quantities[menu.id] ?: 0,
                         onIncrease = { viewModel.increaseQuantity(menu.id) },
                         onDecrease = { viewModel.decreaseQuantity(menu.id) }
                     )
@@ -156,11 +164,8 @@ fun CartScreen(
     viewModel: OrderViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val quantities by viewModel.quantities.collectAsState()
-
-    val cartItems = MenuData.items.filter { (quantities[it.id] ?: 0) > 0 }
-    val totalPrice = cartItems.sumOf { (quantities[it.id] ?: 0) * it.price.toLong() }
-    val formattedPrice = NumberFormat.getInstance().format(totalPrice)
+    val uiState by viewModel.uiState.collectAsState()
+    val formattedPrice = NumberFormat.getInstance().format(uiState.totalPrice)
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -179,7 +184,7 @@ fun CartScreen(
             )
             TextButton(
                 onClick = { viewModel.clearCart() },
-                enabled = cartItems.isNotEmpty()
+                enabled = !uiState.isCartEmpty
             ) {
                 Text("전체 비우기")
             }
@@ -192,7 +197,7 @@ fun CartScreen(
                 .weight(1f)
                 .fillMaxWidth()
         ) {
-            if (cartItems.isEmpty()) {
+            if (uiState.isCartEmpty) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -207,10 +212,10 @@ fun CartScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(cartItems) { menu ->
+                    items(uiState.cartItems) { (menu, quantity) ->
                         MenuItemRow(
                             menu = menu,
-                            quantity = quantities[menu.id] ?: 0,
+                            quantity = quantity,
                             onIncrease = { viewModel.increaseQuantity(menu.id) },
                             onDecrease = { viewModel.decreaseQuantity(menu.id) }
                         )
@@ -221,8 +226,8 @@ fun CartScreen(
         }
 
         CheckoutButton(
-            totalPrice = totalPrice,
-            enabled = cartItems.isNotEmpty(),
+            totalPrice = uiState.totalPrice,
+            enabled = !uiState.isCartEmpty,
             onClick = {
                 Toast.makeText(context, "${formattedPrice}원 결제 완료!", Toast.LENGTH_SHORT).show()
             }
