@@ -5,6 +5,8 @@ import com.mca.androidseminar2026.model.OrderTab
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 
 
 // 상태와 이벤트 연결은 CounterExample.kt의 실행 예제를 참고하세요.
@@ -32,11 +34,19 @@ fun CartScreen() {
     // 전체 비우기와 빈 목록 안내를 구현하세요.
     // 전체 수량·총가격 텍스트 대신 Bottom Bar 위에 CheckoutButton을 고정하세요.
     // 클릭 시 현재 금액의 결제 완료 Toast만 표시하고 장바구니는 유지하세요.
+    CheckoutButton(totalPrice = 0, enabled = true, onClick = {})
 }
 
 @Composable
 fun CheckoutButton(totalPrice: Long, enabled: Boolean, onClick: () -> Unit) {
     // TODO: "총 금액 : nnnn원" 버튼을 구현하세요. 빈 장바구니에서는 비활성화하세요.
+    Button(
+        onClick = onClick,
+        enabled = enabled
+    ) {
+        Text("총 금액 : ${totalPrice}원")
+    }
+
 }
 
 @Composable
