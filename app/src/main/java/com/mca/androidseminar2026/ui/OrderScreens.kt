@@ -30,6 +30,12 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mca.androidseminar2026.data.MenuData
 import com.mca.androidseminar2026.ViewModel.OrderViewModel
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.FilterChip
+import com.mca.androidseminar2026.data.MenuCategory
 
 
 // 상태와 이벤트 연결은 CounterExample.kt의 실행 예제를 참고하세요.
@@ -101,80 +107,118 @@ fun MenuScreen() {
 
     val viewModel: OrderViewModel = viewModel()
     val quantities by viewModel.quantities.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val selectedCategory by viewModel.selectedCategory.collectAsState()
+    val visibleItems = MenuData.items.filter { menu ->
+        selectedCategory == null || menu.category == selectedCategory
+    }
 
-    LazyColumn {
-        items(MenuData.items) { menu ->
-            MenuItemRow(
-                menu = menu,
-                quantity = quantities[menu.id] ?: 0,
-                onIncrease = {
-                    viewModel.increaseQuantity(menu.id)
-                },
-                onDecrease = {
-                    viewModel.decreaseQuantity(menu.id)
+
+    Column {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            FilterChip(
+                selected = selectedCategory == null,
+                onClick = { viewModel.selectCategory(null) },
+                label = { Text("전체") }
+            )
+            FilterChip(
+                selected = selectedCategory == MenuCategory.MAIN,
+                onClick = { viewModel.selectCategory(MenuCategory.MAIN) },
+                label = { Text("메인") }
+            )
+            FilterChip(
+                selected = selectedCategory == MenuCategory.SIDE,
+                onClick = { viewModel.selectCategory(MenuCategory.SIDE) },
+                label = { Text("사이드") }
+            )
+            FilterChip(
+                selected = selectedCategory == MenuCategory.DRINK,
+                onClick = { viewModel.selectCategory(MenuCategory.DRINK) },
+                label = { Text("음료") }
+            )
+        }
+
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = viewModel::refreshMenu
+        ) {
+            LazyColumn {
+                items(visibleItems) { menu ->
+                    MenuItemRow(
+                        menu = menu,
+                        quantity = quantities[menu.id] ?: 0,
+                        onIncrease = {
+                            viewModel.increaseQuantity(menu.id)
+                        },
+                        onDecrease = {
+                            viewModel.decreaseQuantity(menu.id)
+                        }
+                    )
                 }
+            }
+        }
+    }
+
+    }
+
+    @Composable
+    fun CartScreen() {
+        // TODO: 같은 MenuItemRow로 수량이 1 이상인 메뉴를 표시하세요.
+        // 수량 변경을 연결하고, 수량이 0이면 목록에서 제거하세요.
+        // 전체 비우기와 빈 목록 안내를 구현하세요.
+        // 전체 수량·총가격 텍스트 대신 Bottom Bar 위에 CheckoutButton을 고정하세요.
+        // 클릭 시 현재 금액의 결제 완료 Toast만 표시하고 장바구니는 유지하세요.
+        CheckoutButton(totalPrice = 0L, enabled = true, onClick = {})
+    }
+
+    @Composable
+    fun CheckoutButton(totalPrice: Long, enabled: Boolean, onClick: () -> Unit) {
+        // TODO: "총 금액 : nnnn원" 버튼을 구현하세요. 빈 장바구니에서는 비활성화하세요.
+        Button(
+            onClick = onClick,
+            enabled = enabled
+        ) {
+            Text("총 금액 : ${totalPrice}원")
+        }
+
+    }
+
+    @Composable
+    fun BottomBar(
+        selectedTab: OrderTab,
+        totalQuantity: Int,
+        onTabSelected: (OrderTab) -> Unit,
+    ) {
+        // TODO: 세 탭과 선택 상태, 장바구니 전체 수량을 표시하세요.
+        // 탭을 누르면 onTabSelected에 해당 OrderTab을 전달하세요.
+
+        NavigationBar {
+            NavigationBarItem(
+                selected = selectedTab == OrderTab.RESTAURANT,
+                onClick = { onTabSelected(OrderTab.RESTAURANT) },
+                icon = { Text("가") },
+                label = { Text("가게 소개") },
+            )
+
+            NavigationBarItem(
+                selected = selectedTab == OrderTab.MENU,
+                onClick = { onTabSelected(OrderTab.MENU) },
+                icon = { Text("메") },
+                label = { Text("메뉴") },
+            )
+
+            NavigationBarItem(
+                selected = selectedTab == OrderTab.CART,
+                onClick = { onTabSelected(OrderTab.CART) },
+                icon = {
+                    Text(totalQuantity.toString())
+                },
+                label = { Text("장바구니") }
             )
         }
     }
 
-
-}
-
-@Composable
-fun CartScreen() {
-    // TODO: 같은 MenuItemRow로 수량이 1 이상인 메뉴를 표시하세요.
-    // 수량 변경을 연결하고, 수량이 0이면 목록에서 제거하세요.
-    // 전체 비우기와 빈 목록 안내를 구현하세요.
-    // 전체 수량·총가격 텍스트 대신 Bottom Bar 위에 CheckoutButton을 고정하세요.
-    // 클릭 시 현재 금액의 결제 완료 Toast만 표시하고 장바구니는 유지하세요.
-    CheckoutButton(totalPrice = 0, enabled = true, onClick = {})
-}
-
-@Composable
-fun CheckoutButton(totalPrice: Long, enabled: Boolean, onClick: () -> Unit) {
-    // TODO: "총 금액 : nnnn원" 버튼을 구현하세요. 빈 장바구니에서는 비활성화하세요.
-    Button(
-        onClick = onClick,
-        enabled = enabled
-    ) {
-        Text("총 금액 : ${totalPrice}원")
-    }
-
-}
-
-@Composable
-fun BottomBar(
-    selectedTab: OrderTab,
-    totalQuantity: Int,
-    onTabSelected: (OrderTab) -> Unit,
-) {
-    // TODO: 세 탭과 선택 상태, 장바구니 전체 수량을 표시하세요.
-    // 탭을 누르면 onTabSelected에 해당 OrderTab을 전달하세요.
-
-    NavigationBar {
-        NavigationBarItem(
-            selected = selectedTab == OrderTab.RESTAURANT,
-            onClick = { onTabSelected(OrderTab.RESTAURANT) },
-            icon = { Text("가") },
-            label = { Text("가게 소개") },
-        )
-
-        NavigationBarItem(
-            selected = selectedTab == OrderTab.MENU,
-            onClick = { onTabSelected(OrderTab.MENU) },
-            icon = { Text("메") },
-            label = { Text("메뉴") },
-        )
-
-        NavigationBarItem(
-            selected = selectedTab == OrderTab.CART,
-            onClick = { onTabSelected(OrderTab.CART) },
-            icon = {
-                Text(totalQuantity.toString())
-            },
-            label = { Text("장바구니") }
-        )
-    }
-}
 
 
