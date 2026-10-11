@@ -23,6 +23,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mca.androidseminar2026.data.MenuData
+import com.mca.androidseminar2026.ViewModel.OrderViewModel
 
 
 // 상태와 이벤트 연결은 CounterExample.kt의 실행 예제를 참고하세요.
@@ -91,6 +98,26 @@ fun MenuScreen() {
     // TODO: 음식점 이름, 카테고리 선택과 MenuItemRow 목록을 배치하세요.
     // 목록 맨 위에서 당겨 새로고침하면 0.5초간 진행 표시를 보여 주세요.
     // 실제 데이터 변경 없이 기존 상태를 유지하고 중복 새로고침은 막으세요.
+
+    val viewModel: OrderViewModel = viewModel()
+    val quantities by viewModel.quantities.collectAsState()
+
+    LazyColumn {
+        items(MenuData.items) { menu ->
+            MenuItemRow(
+                menu = menu,
+                quantity = quantities[menu.id] ?: 0,
+                onIncrease = {
+                    viewModel.increaseQuantity(menu.id)
+                },
+                onDecrease = {
+                    viewModel.decreaseQuantity(menu.id)
+                }
+            )
+        }
+    }
+
+
 }
 
 @Composable

@@ -86,8 +86,6 @@ fun MenuItemRow(
         }
     }
 
-    Divider()
-
 }
 
 @Composable
