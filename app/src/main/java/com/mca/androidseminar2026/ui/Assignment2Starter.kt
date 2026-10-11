@@ -2,18 +2,22 @@ package com.mca.androidseminar2026.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mca.androidseminar2026.ViewModel.OrderViewModel
 import com.mca.androidseminar2026.model.OrderTab
+
 @Composable
-fun Assignment2Starter() {
-    // 버튼 → ViewModel → UiState → UI 연결을 보여 주는 실행 예제입니다.
-    // TODO: 예제를 참고해 직접 설계한 과제 화면·상태·이벤트 연결로 교체하세요.
+fun Assignment2Starter(
+    viewModel: OrderViewModel = viewModel()
+) {
     var selectedTab by rememberSaveable {
         mutableStateOf(OrderTab.RESTAURANT)
     }
@@ -21,23 +25,26 @@ fun Assignment2Starter() {
         mutableStateOf(false)
     }
 
+    val quantities by viewModel.quantities.collectAsState()
+    val totalQuantity = quantities.values.sum()
+
     Scaffold(
         bottomBar = {
             BottomBar(
                 selectedTab = selectedTab,
-                totalQuantity = 0,
+                totalQuantity = totalQuantity,
                 onTabSelected = { selectedTab = it }
             )
         }
-    ) {innerPadding ->
+    ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (selectedTab) {
                 OrderTab.RESTAURANT -> RestaurantScreen(
-                isFavorite = isFavorite,
-                onFavoriteClick = { isFavorite = !isFavorite }
-            )
-                OrderTab.MENU -> MenuScreen()
-                OrderTab.CART -> CartScreen()
+                    isFavorite = isFavorite,
+                    onFavoriteClick = { isFavorite = !isFavorite }
+                )
+                OrderTab.MENU -> MenuScreen(viewModel = viewModel)
+                OrderTab.CART -> CartScreen(viewModel = viewModel)
             }
         }
     }

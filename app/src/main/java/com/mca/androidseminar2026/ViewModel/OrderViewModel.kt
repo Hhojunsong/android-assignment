@@ -36,6 +36,10 @@ class OrderViewModel : ViewModel() {
         }
     }
 
+    fun clearCart() {
+        _quantities.value = emptyMap()
+    }
+
     fun refreshMenu() {
         if (_isRefreshing.value) return
 
