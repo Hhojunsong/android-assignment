@@ -6,7 +6,23 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.Button
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import com.mca.androidseminar2026.data.RestaurantData
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.graphics.Color
 
 
 // 상태와 이벤트 연결은 CounterExample.kt의 실행 예제를 참고하세요.
@@ -15,9 +31,59 @@ import androidx.compose.material3.ButtonDefaults
 // 예시 파일 구조입니다. 한 파일에 여러 함수를 모두 저장할 필요는 없습니다.
 
 @Composable
-fun RestaurantScreen() {
+fun RestaurantScreen(
+    isFavorite: Boolean,
+    onFavoriteClick: () -> Unit
+) {
     // TODO: RestaurantData의 이름·대표 이미지·소개와 가게 찜 버튼을 표시하세요.
     // 찜 여부를 구분하고, 탭 전환과 화면 회전 후에도 상태를 유지하세요.
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(20.dp)
+    ) {
+        Text(text = "가게 소개", fontSize = 32.sp, fontWeight = FontWeight.Bold)
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Image(
+            painter = painterResource(id = RestaurantData.imageResId),
+            contentDescription = RestaurantData.name,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(220.dp)
+                .clip(RoundedCornerShape(16.dp))
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(text = RestaurantData.name, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(RestaurantData.description)
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = onFavoriteClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp),
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, Color(0xFFB7B7C2)),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = Color(0xFF62636D)
+            )
+        ) {
+            Text(
+                if (isFavorite) "♥ 가게 찜 해제"
+                else "♡ 가게 찜하기"
+            )
+        }
+    }
 }
 
 @Composable

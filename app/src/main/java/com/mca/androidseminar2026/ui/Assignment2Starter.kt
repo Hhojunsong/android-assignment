@@ -17,6 +17,9 @@ fun Assignment2Starter() {
     var selectedTab by rememberSaveable {
         mutableStateOf(OrderTab.RESTAURANT)
     }
+    var isFavorite by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     Scaffold(
         bottomBar = {
@@ -29,7 +32,10 @@ fun Assignment2Starter() {
     ) {innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             when (selectedTab) {
-                OrderTab.RESTAURANT -> RestaurantScreen()
+                OrderTab.RESTAURANT -> RestaurantScreen(
+                isFavorite = isFavorite,
+                onFavoriteClick = { isFavorite = !isFavorite }
+            )
                 OrderTab.MENU -> MenuScreen()
                 OrderTab.CART -> CartScreen()
             }
